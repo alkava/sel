@@ -13,3 +13,7 @@ def test_first():
     wd.quit
     print("the end.")
 
+
+def test_login(app):
+    print("the end.")
+

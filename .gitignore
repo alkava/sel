@@ -8,7 +8,7 @@ __pycache__/
 .idea/
 
 build/
-test/__init__.py
+*/__init__.py
 
 # PyBuilder
 target/

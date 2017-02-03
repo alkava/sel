@@ -1,9 +1,43 @@
 # -*- coding: utf-8 -*-
+from selenium.webdriver.common.by import By
+
+def test_menu(app, app_admin):
+    wd = app.wd
+    xpath_selector = "//li[@id='app-']"
+    number_of_menu_items = len(wd.find_elements_by_xpath(xpath_selector))
+    list_of_failed_items = []
+    counter = 0
+    i = 1
+    while i <= number_of_menu_items:
+        menu_item = wd.find_element_by_xpath(xpath_selector+"["+str(i)+"]")
+        menu_item.click()
+
+        number_of_submenu_items = len(wd.find_elements_by_xpath(xpath_selector+" //li"))
+        if number_of_submenu_items != 0:
+            j = 1
+            while j <= number_of_submenu_items:
+                submenu_item = wd.find_element_by_xpath(xpath_selector + " //li[" + str(j) + "]")
+                submenu_item.click()
+                if not app.admin_page.is_element_presented((By.CSS_SELECTOR, "h1")):
+                    counter = counter + 1
+                    list_of_failed_items.append("Sub-menu item: %s" % wd.find_element_by_xpath(xpath_selector + " //li[" + str(j) + "]").text)
+                j = j + 1
+
+        else:
+            if not app.admin_page.is_element_presented((By.CSS_SELECTOR, "h1")):
+                counter = counter + 1
+                list_of_failed_items.append(
+                    "Menu item: %s" % wd.find_element_by_xpath(xpath_selector+"["+str(i)+"]").text)
+        j = 0
+        i = i + 1
+
+    assert counter == 0, str(counter) + " item(s) has(have) no element 'h1' \n %s" % list_of_failed_items
 
 def test_login(app, app_admin):
-
     # Menu Appearence
+
     app.admin_page.open_appearence_menu()
+
     app.admin_page.open_template_submenu()
     app.admin_page.open_logotype_submenu()
     # Menu Catalog

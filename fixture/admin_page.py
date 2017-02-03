@@ -9,17 +9,13 @@ class AdminHelper:
     def __init__(self, app):
         self.app = app
 
-
-    def is_element_presented(self, locator):
+    def is_element_presented(self, locator) -> object:
         wd = self.app.wd
         try:
-            element = WebDriverWait(wd, 10).until(
-                EC.presence_of_element_located(locator)
-            )
+            WebDriverWait(wd, 2).until(EC.presence_of_element_located(locator))
             # print("Element has been found")
             return True
         except Exception:
-            print("Element hasn't been found")
             return False
 
     # Menu Appearence

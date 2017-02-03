@@ -23,9 +23,9 @@ class Application:
         self.base_url = base_url
         self.browser = browser
 
-    def open_home_page(self):
+    def open_home_page(self, user_side):
         wd = self.wd
-        wd.get(self.base_url)
+        wd.get(self.base_url+user_side)
 
     def destroy(self):
         self.wd.quit()

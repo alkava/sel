@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-def test_login(app):
+def test_login(app, app_admin):
 
     # Menu Appearence
     app.admin_page.open_appearence_menu()

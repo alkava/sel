@@ -7,3 +7,4 @@ admin = {'login': 'admin',
 
 # URLs
 admin_page = "/admin"
+shop_main_page = ""

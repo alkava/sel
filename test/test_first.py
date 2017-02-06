@@ -33,6 +33,35 @@ def test_menu(app, app_admin):
 
     assert counter == 0, str(counter) + " item(s) has(have) no element 'h1' \n %s" % list_of_failed_items
 
+def test_sorting_of_countries(app, app_admin):
+    wd = app.wd
+    app.admin_page.open_countries_menu()
+    countries_column = wd.find_elements_by_css_selector(".row td:nth-of-type(5)")
+    list_of_countries = [x.text for x in countries_column]
+    sorted_list = sorted(list_of_countries)
+    assert sorted_list == list_of_countries, "List is not sorted"
+
+def test_sorting_of_zones_per_countries(app, app_admin):
+    wd = app.wd
+    app.admin_page.open_countries_menu()
+    rows = [x.text for x in wd.find_elements_by_xpath(".//*[@class='row'] [.//td[6]!=0]//td[5]")]
+    print(rows)
+    count = len(rows)
+    for el in rows:
+        wd.find_element_by_link_text(el).click()
+        zones_column = wd.find_elements_by_xpath(".//*[@id='table-zones']//tr[position() < last()]/td[3]")
+
+        list_of_zones = [x.text for x in zones_column]
+        sorted_list = sorted(list_of_zones)
+        if sorted_list == list_of_zones:
+            print("List of Zones for " + el + " is sorted")
+            count = count -1
+        else:
+            print("List of Zones for " + el + " is not sorted")
+        wd.execute_script("window.history.go(-1)")
+
+    assert count == 0, "Some countries have unsorted list of Zones. Look at output above"
+
 def test_login(app, app_admin):
     # Menu Appearence
 

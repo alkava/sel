@@ -62,6 +62,15 @@ def test_sorting_of_zones_per_countries(app, app_admin):
 
     assert count == 0, "Some countries have unsorted list of Zones. Look at output above"
 
+def test_sorting_of_geo_zones(app, app_admin):
+    wd = app.wd
+    app.admin_page.open_geo_zones_menu()
+    name_column = wd.find_elements_by_css_selector(".row td:nth-of-type(3)")
+    list_of_countries = [x.text for x in name_column]
+    sorted_list = sorted(list_of_countries)
+    assert sorted_list == list_of_countries, "List is not sorted"
+
+
 def test_login(app, app_admin):
     # Menu Appearence
 

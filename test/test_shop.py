@@ -18,6 +18,59 @@ def test_stickers(app, app_shop):
 
     assert count == 0, "Some products have not one sticker: %s" % list_with_failed_products
 
+def test_product_page(app, app_shop):
+    wd = app.wd
+
+    # Actions on the Main page
+
+    elements = wd.find_element_by_css_selector("#box-campaigns li.product:nth-child(1)")
+    list_of_parameters = [elements.find_element_by_css_selector(".name").text]
+
+    regular_price = elements.find_element_by_css_selector(".regular-price")
+    list_of_parameters.append(regular_price.text)
+
+    campaign_price = elements.find_element_by_css_selector(".campaign-price")
+    list_of_parameters.append(campaign_price.text)
+
+    r_color = regular_price.value_of_css_property("color") #rgb(119,​ 119,​ 119)
+    r_decoration = regular_price.value_of_css_property("text-decoration")  #line-through
+    r_font_size = regular_price.value_of_css_property("font-size")
+
+    print(r_color, r_decoration, r_font_size)
+    assert ("119, 119, 119" in r_color) and (r_decoration == "line-through"),"Regular price has incorrect style on the Main page"
+
+    c_color = campaign_price.value_of_css_property("color")  # rgb(204, 0, 0)
+    c_decoration = campaign_price.get_attribute("localName")  # bold
+    c_font_size = campaign_price.value_of_css_property("font-size")
+    print(c_color, c_decoration, c_font_size)
+
+    assert "204, 0, 0" in c_color and c_decoration == "strong", "Campaign price has correct style on the Main page"
+    assert r_font_size < c_font_size, "Atata! Campaign price should have font size bigger than Regular price"
+
+    # Actions on the page with product details
+
+    elements.click()
+    assert wd.find_element_by_css_selector("h1").text == list_of_parameters[0]
+    regular_price1 = wd.find_element_by_css_selector("#box-product .regular-price")
+    assert regular_price1.text == list_of_parameters[1]
+    campaign_price1 = wd.find_element_by_css_selector("#box-product .campaign-price")
+    assert campaign_price1.text == list_of_parameters[2]
+
+    r_color1 = regular_price1.value_of_css_property("color")  # rgb(102, 102, 102)
+    r_decoration1 = regular_price1.value_of_css_property("text-decoration")  # line-through
+    r_font_size1 = regular_price1.value_of_css_property("font-size")
+    print(r_color1, r_decoration1, r_font_size1)
+    assert "102, 102, 102" in r_color1 and r_decoration1 == "line-through", "Regular price has incorrect style on the Main page"
+
+    c_color1 = campaign_price1.value_of_css_property("color")  # rgb(204, 0, 0)
+    c_decoration1 = campaign_price1.get_attribute("localName")  # bold
+    c_font_size1 = campaign_price1.value_of_css_property("font-size")
+    print(c_color1, c_decoration1, c_font_size1)
+
+    assert "204, 0, 0" in c_color1 and c_decoration1 == "strong", "Campaign price has correct style on the Main page"
+    assert r_font_size1 < c_font_size1, "Atata! Campaign price has font size smaller than Regular price"
+
+
 
 
 

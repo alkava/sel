@@ -1,5 +1,66 @@
 # -*- coding: utf-8 -*-
 
+import string
+import random
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import Select
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+
+
+def generate_email():
+    return ''.join([random.choice(string.ascii_letters + string.digits) for i in range(random.randrange(5, 20))]) + \
+        "@" + ''.join([random.choice(string.ascii_letters) for i in range(random.randrange(5, 10))]) + \
+        "." + ''.join([random.choice(string.ascii_letters) for i in range(random.randrange(2, 4))])
+
+
+def generate_phone():
+    return '+' + ''.join([random.choice(string.digits) for i in range(10)])
+
+
+def test_registration_of_new_user (app, app_shop):
+    wd = app.wd
+
+    # initialisation of a customer registration
+    wd.find_element_by_link_text("New customers click here").click()
+
+    # filling the form
+    app.base.type(By.NAME, "tax_id", "2344")
+    app.base.type(By.NAME, "company", "company")
+    app.base.type(By.NAME, "firstname", "firstname")
+    app.base.type(By.NAME, "lastname", "lastname")
+    app.base.type(By.NAME, "address1", "Address 1")
+    app.base.type(By.NAME, "address2", "Address 2")
+    postcode = ''.join([random.choice(string.digits) for i in range(5)])
+    print("postcode: " + postcode)
+    app.base.type(By.NAME, "postcode", postcode)
+    app.base.type(By.NAME, "city", "New York")
+
+    select = Select(wd.find_element_by_name("country_code"))
+    select.select_by_visible_text("United States")
+
+    select = Select(wd.find_element_by_xpath(".//select[@name='zone_code']"))
+    WebDriverWait(wd, 10).until(
+        EC.text_to_be_present_in_element((By.XPATH, ".//select[@name='zone_code']"), "New York"))
+    select.select_by_value("NY")
+
+    email = generate_email()
+    print("email: " + email)
+    app.base.type(By.NAME, "email", email)
+    app.base.type(By.NAME, "phone", generate_phone())
+    password = "password"
+    print("password: " + password)
+    app.base.type(By.NAME, "password", password)
+    app.base.type(By.NAME, "confirmed_password", password)
+
+    # Submitting the form
+    wd.find_element_by_name("create_account").click()
+
+    wd.find_element_by_link_text("Logout").click()
+    app.session.login_to_shop(email, password)
+    wd.find_element_by_link_text("Logout").click()
+
+
 def test_stickers(app, app_shop):
     wd = app.wd
     list_of_all_products_on_the_page = wd.find_elements_by_css_selector(".product")
@@ -69,6 +130,8 @@ def test_product_page(app, app_shop):
 
     assert "204, 0, 0" in c_color1 and c_decoration1 == "strong", "Campaign price has correct style on the Main page"
     assert r_font_size1 < c_font_size1, "Atata! Campaign price has font size smaller than Regular price"
+
+
 
 
 

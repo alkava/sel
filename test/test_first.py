@@ -67,8 +67,20 @@ def test_sorting_of_geo_zones(app, app_admin):
     app.admin_page.open_geo_zones_menu()
     name_column = wd.find_elements_by_css_selector(".row td:nth-of-type(3)")
     list_of_countries = [x.text for x in name_column]
-    sorted_list = sorted(list_of_countries)
-    assert sorted_list == list_of_countries, "List is not sorted"
+    number_of_cuntries = len(list_of_countries)
+    counter = 1
+    while counter <= number_of_cuntries:
+        wd.find_element_by_xpath(".//tr[@class='row'][" + str(counter) + "]//td[3]/a[1]").click()
+        print("Country:  ", wd.find_element_by_css_selector("table tr:nth-child(1)>td>input").get_attribute("value"))
+        counter = counter + 1
+        list_of_zones = [x.text for x in wd.find_elements_by_xpath(".//*[@id='table-zones']//td[3]//*[@selected]")]
+        sorted_list = sorted(list_of_zones)
+        assert list_of_zones == sorted_list, "Country %s has unsorted list of Zones" % wd.find_element_by_css_selector("table tr:nth-child(1)>td>input").get_attribute("velue")
+        wd.back()
+
+
+
+
 
 
 def test_login(app, app_admin):

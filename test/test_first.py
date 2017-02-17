@@ -1,5 +1,24 @@
 # -*- coding: utf-8 -*-
 from selenium.webdriver.common.by import By
+from model.product import Product
+
+
+def test_adding_new_product(app, app_admin):
+    wd = app.wd
+    app.admin_page.open_catalog_menu()
+    product = Product(status="1", name="Batduck", code="123",
+                 categories="Rubber Ducks", default_category="Rubber Ducks", gender="Unisex", quantity="8", quantity_unit="pcs",
+                 delivery_status="3-5 days", sold_out_status="Temporary sold out", image="1889_01.jpg", date_from="2017-02-19", date_to="2017-12-19",
+                 manufacturer="ACME Corp.", supplier=None, keywords="duck", short_description="short_description", description="description",
+                 head_title="qwerty", meta_description="meta sdkjfskdhf", purchase_price="39", currency="US Dollars", tax_class=None,
+                 price_incl_tax_usd="13", price_incl_tax_eur="20")
+    wd.find_element_by_link_text(product.default_category).click()
+    count_entries_before = len(wd.find_elements_by_link_text(product.name))
+    app.admin_page.add_new_product(product)
+    wd.find_element_by_link_text(product.default_category).click()
+    count_entries_after = len(wd.find_elements_by_link_text(product.name))
+    assert count_entries_after == count_entries_before + 1
+
 
 def test_menu(app, app_admin):
     wd = app.wd

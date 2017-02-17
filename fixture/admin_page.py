@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-
+import os.path
+import time
+from selenium.webdriver.common.keys import Keys
 
 class AdminHelper:
 
@@ -366,4 +369,106 @@ class AdminHelper:
         wd = self.app.wd
         wd.find_element_by_css_selector("#doc-vqmods>a").click()
         self.is_element_presented((By.CSS_SELECTOR, "h1"))
+
+    # New product
+
+    def add_new_product(self, product):
+        wd = self.app.wd
+        self.init_adding_new_product()
+        self.fill_general_tab(product)
+        self.fill_information_tab(product)
+        self.fill_prices_tab(product)
+        wd.find_element_by_name("save").click()
+
+    def init_adding_new_product(self):
+        wd = self.app.wd
+        wd.find_element_by_link_text("Add New Product").click()
+
+    def fill_general_tab(self, product):
+        wd = self.app.wd
+        wd.find_element_by_link_text("General").click()
+        wd.find_element_by_xpath(".//*[@name='status'][@value="+product.status+"]").click()
+        self.app.base.type(By.NAME, "name[en]", product.name)
+        self.app.base.type(By.NAME, "code", product.code)
+
+        elements = wd.find_elements_by_css_selector("input[name='categories[]']")
+        for el in elements:
+            if el.is_selected():
+                el.click()
+
+        wd.find_element_by_xpath(".//*[@data-name='"+product.categories+"']").click()
+
+        select = Select(wd.find_element_by_name("default_category_id"))
+        select.select_by_visible_text(product.default_category)
+
+        elements = wd.find_elements_by_css_selector("input[name='product_groups[]']")
+        for el in elements:
+            if el.is_selected():
+                el.click()
+
+        wd.find_element_by_xpath(".//td[contains(text(),'"+product.gender+"')]/..//input").click()
+        self.app.base.type(By.NAME, "quantity", product.quantity)
+        wd.find_element_by_tag_name("body").click()
+
+        select = Select(wd.find_element_by_name("quantity_unit_id"))
+        select.select_by_visible_text(product.quantity_unit)
+
+        select = Select(wd.find_element_by_name("delivery_status_id"))
+        select.select_by_visible_text(product.delivery_status)
+
+        select = Select(wd.find_element_by_name("sold_out_status_id"))
+        select.select_by_visible_text(product.sold_out_status)
+
+        string = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), product.image)
+
+        print("Path of the imge: " + string)
+        wd.find_element_by_name("new_images[]").send_keys(string)
+        #wd.find_element_by_name("date_valid_from").send_keys(Keys.HOME + product.date_from)
+
+        self.set_date_picker("date_valid_from", product.date_from)
+        #wd.find_element_by_name("date_valid_to").send_keys(Keys.HOME + product.date_to)
+        self.set_date_picker("date_valid_to", product.date_to)
+
+    def set_date_picker(self, selector, date):
+        wd = self.app.wd
+        wd.execute_script(
+            'document.querySelector("[name='+selector+']").removeAttribute("type")')
+        self.app.base.type(By.NAME, selector, date)
+
+    def fill_information_tab(self, product):
+        wd = self.app.wd
+        wd.find_element_by_link_text("Information").click()
+        WebDriverWait(wd, 10).until(EC.visibility_of_element_located((By.CLASS_NAME, 'trumbowyg-editor')))
+        select = Select(wd.find_element_by_name("manufacturer_id"))
+        select.select_by_visible_text(product.manufacturer)
+        if product.supplier != None:
+            select = Select(wd.find_element_by_name("supplier_id"))
+            select.select_by_visible_text(product.manufacturer)
+        self.app.base.type(By.NAME, "keywords", product.keywords)
+        self.app.base.type(By.NAME, "short_description[en]", product.short_description)
+
+
+        element = wd.find_element_by_css_selector(".input-wrapper[style='white-space: normal;']")
+        element.click()
+        element.find_element_by_name("description[en]").send_keys("Some Sample Text Here")
+
+
+
+        self.app.base.type(By.NAME, "head_title[en]", product.head_title)
+        self.app.base.type(By.NAME, "meta_description[en]", product.meta_description)
+
+    def fill_prices_tab(self, product):
+        wd = self.app.wd
+        wd.find_element_by_link_text("Prices").click()
+        WebDriverWait(wd, 10).until(EC.visibility_of_element_located((By.ID, 'add-campaign')))
+        self.app.base.type(By.NAME, "purchase_price", product.purchase_price)
+        select = Select(wd.find_element_by_name("purchase_price_currency_code"))
+        select.select_by_visible_text(product.currency)
+        if product.tax_class != None:
+            select = Select(wd.find_element_by_name("tax_class_id"))
+            select.select_by_visible_text(product.tax_class)
+        self.app.base.type(By.NAME, "gross_prices[USD]", product.price_incl_tax_usd)
+        self.app.base.type(By.NAME, "gross_prices[EUR]", product.price_incl_tax_eur)
+
+
 

@@ -18,7 +18,7 @@ def generate_phone():
     return '+' + ''.join([random.choice(string.digits) for i in range(10)])
 
 
-def test_registration_of_new_user (app, app_shop):
+def test_registration_of_new_user(app, app_shop):
     wd = app.wd
 
     # initialisation of a customer registration

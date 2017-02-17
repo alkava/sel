@@ -8,6 +8,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 
+
+
 def generate_email():
     return ''.join([random.choice(string.ascii_letters + string.digits) for i in range(random.randrange(5, 20))]) + \
         "@" + ''.join([random.choice(string.ascii_letters) for i in range(random.randrange(5, 10))]) + \
@@ -16,6 +18,35 @@ def generate_email():
 
 def generate_phone():
     return '+' + ''.join([random.choice(string.digits) for i in range(10)])
+
+
+def test_adding_products_to_the_cart(app, app_shop):
+    wd = app.wd
+    wait = WebDriverWait(wd, 10)
+
+    # Adding products to the shopping cart
+    for i in range(0, 3):
+        wd.find_element_by_css_selector("#box-most-popular .product:first-child").click()
+        quantity_items_before = int(wd.find_element_by_css_selector(".quantity").text)
+        print("quantity_items_before  " + str(quantity_items_before))
+        wd.find_element_by_name("add_cart_product").click()
+        wait.until(lambda x: (int(x.find_element_by_css_selector(".quantity").text)) == quantity_items_before + 1)
+        wd.find_element_by_link_text("Home").click()
+
+    # Opening the Checkout page
+    wd.find_element_by_link_text("Checkout »").click()
+
+    number_of_items = len(wd.find_elements_by_css_selector(".dataTable td.item"))
+
+    # Removing of items from the shopping cart
+    while number_of_items > 0:
+        number_of_items = number_of_items - 1
+        wd.find_element_by_name("remove_cart_item").click()
+        if number_of_items != 0:
+            wait.until(
+                lambda x: (len(x.find_elements_by_css_selector(".dataTable td.item"))) == number_of_items)
+        else:
+            wait.until(EC.text_to_be_present_in_element((By.ID, "checkout-cart-wrapper"), "There are no items in your cart."))
 
 
 def test_registration_of_new_user(app, app_shop):
@@ -35,7 +66,6 @@ def test_registration_of_new_user(app, app_shop):
     print("postcode: " + postcode)
     app.base.type(By.NAME, "postcode", postcode)
     app.base.type(By.NAME, "city", "New York")
-
     select = Select(wd.find_element_by_name("country_code"))
     select.select_by_visible_text("United States")
 

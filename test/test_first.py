@@ -1,6 +1,36 @@
 # -*- coding: utf-8 -*-
 from selenium.webdriver.common.by import By
 from model.product import Product
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.common.exceptions import TimeoutException
+
+
+def test_link_opening_in_new_window(app, app_admin):
+    wd = app.wd
+    app.admin_page.open_countries_menu()
+    wd.find_element_by_partial_link_text("New Country").click()
+    main_window = wd.current_window_handle
+    old_windows = wd.window_handles
+    print("old_windows" + old_windows)
+    count = len(old_windows)
+    counter=0
+    number_of_external_links = len(wd.find_elements_by_xpath("(.//i[@class='fa fa-external-link'])"))
+    for i in range(1, number_of_external_links+1):
+        wd.find_element_by_xpath("(.//i[@class='fa fa-external-link'])[" + str(i) + "]").click()
+        wait = WebDriverWait(wd, 10)
+        try:
+            new_windows = wait.until(lambda d: d.window_handles if len(d.window_handles) == count+1 else False)
+
+            new_window = [x for x in new_windows if x not in old_windows]
+            print(new_window)
+            wd.switch_to_window(new_window[0])
+            #..
+            wd.close()
+            wd.switch_to_window(main_window)
+        except TimeoutException:
+            print("New window hasn't been opened.")
+            counter = counter+1
+    assert counter == 0
 
 
 def test_adding_new_product(app, app_admin):

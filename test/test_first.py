@@ -5,6 +5,32 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import TimeoutException
 
 
+def test_logs(app, app_admin):
+
+    wd = app.wd
+    app.admin_page.open_catalog_menu()
+    app.admin_page.open_catalog_submenu()
+    text = wd.find_element_by_xpath(".//td[3]/i[@class='fa fa-folder']/..").text
+    wd.find_element_by_link_text(text).click()
+    count = len(wd.find_elements_by_xpath(".//td[3]/a[contains(@href, 'product_id')]"))
+    print("count = " + str(count))
+    for el in range(1, count+1):
+        wd.find_element_by_xpath("(.//td[3]/a[contains(@href, 'product_id')])[" + str(el) + "]").click()
+        print("browser logs:")
+        log = wd.get_log("browser")
+        for l in log:
+            print(l)
+        assert len(log) == 0
+
+        print("driver logs:")
+        log = wd.get_log("driver")
+        for l in log:
+            print(l)
+        assert len(log) == 0
+        wd.back()
+
+
+
 def test_link_opening_in_new_window(app, app_admin):
     wd = app.wd
     app.admin_page.open_countries_menu()

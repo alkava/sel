@@ -3,6 +3,9 @@ from selenium import webdriver
 from fixture.session import SessionHelper
 from fixture.base import BaseHelper
 from fixture.admin_page import AdminHelper
+from fixture.main_shop_page import MainShopPageHelper
+from fixture.checkout_page import CheckoutHelper
+from fixture.product_page import ProductHelper
 from selenium.webdriver.support.events import EventFiringWebDriver, AbstractEventListener
 
 
@@ -33,6 +36,9 @@ class Application:
         self.session = SessionHelper(self)
         self.base = BaseHelper(self)
         self.admin_page = AdminHelper(self)
+        self.main_shop_page = MainShopPageHelper(self)
+        self.checkout_page = CheckoutHelper(self)
+        self.product_page = ProductHelper(self)
         self.base_url = base_url
         self.browser = browser
 

@@ -21,32 +21,21 @@ def generate_phone():
 
 
 def test_adding_products_to_the_cart(app, app_shop):
-    wd = app.wd
-    wait = WebDriverWait(wd, 10)
-
-    # Adding products to the shopping cart
+    # Adding products to the shopping cart three times
     for i in range(0, 3):
-        wd.find_element_by_css_selector("#box-most-popular .product:first-child").click()
-        quantity_items_before = int(wd.find_element_by_css_selector(".quantity").text)
-        print("quantity_items_before  " + str(quantity_items_before))
-        wd.find_element_by_name("add_cart_product").click()
-        wait.until(lambda x: (int(x.find_element_by_css_selector(".quantity").text)) == quantity_items_before + 1)
-        wd.find_element_by_link_text("Home").click()
+        app_shop.main_shop_page.select_first_product()
+        app_shop.product_page.click_on_add_to_cart_button()
+        app_shop.product_page.back_home_page()
 
     # Opening the Checkout page
-    wd.find_element_by_link_text("Checkout »").click()
-
-    number_of_items = len(wd.find_elements_by_css_selector(".dataTable td.item"))
+    number_of_items = app_shop.checkout_page.open_checkout_page()
 
     # Removing of items from the shopping cart
     while number_of_items > 0:
         number_of_items = number_of_items - 1
-        wd.find_element_by_name("remove_cart_item").click()
-        if number_of_items != 0:
-            wait.until(
-                lambda x: (len(x.find_elements_by_css_selector(".dataTable td.item"))) == number_of_items)
-        else:
-            wait.until(EC.text_to_be_present_in_element((By.ID, "checkout-cart-wrapper"), "There are no items in your cart."))
+        app_shop.checkout_page.remove_current_product()
+        assert app_shop.checkout_page.check_cart_after_product_removing(number_of_items), "Item hasn't been removed."
+
 
 
 def test_registration_of_new_user(app, app_shop):
